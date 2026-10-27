@@ -100,3 +100,20 @@ class OrderItem(Base):
 
     order: Mapped["Order"] = relationship(back_populates="items")
     wine: Mapped["Wine"] = relationship()
+
+
+class Address(Base):
+    __tablename__ = "addresses"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    recipient: Mapped[str] = mapped_column(String(120))
+    cep: Mapped[str] = mapped_column(String(20))
+    street: Mapped[str] = mapped_column(String(200))
+    number: Mapped[str] = mapped_column(String(20))
+    complement: Mapped[str] = mapped_column(String(100), default="")
+    neighborhood: Mapped[str] = mapped_column(String(100))
+    city: Mapped[str] = mapped_column(String(100))
+    state: Mapped[str] = mapped_column(String(2))
+    reference: Mapped[str] = mapped_column(String(200), default="")
+    is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
