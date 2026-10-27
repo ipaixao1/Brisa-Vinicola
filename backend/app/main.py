@@ -5,8 +5,7 @@ from sqlalchemy.orm import Session
 
 from . import models  # noqa: F401  (registra as tabelas)
 from .database import Base, engine, get_db
-from .routers import addresses, auth, orders, wines
-
+from .routers import addresses, auth, cards, orders, wines
 # Cria as tabelas que ainda não existem
 Base.metadata.create_all(bind=engine)
 
@@ -24,6 +23,7 @@ app.include_router(wines.router)
 app.include_router(auth.router)
 app.include_router(orders.router)
 app.include_router(addresses.router)
+app.include_router(cards.router)
 
 
 @app.get("/")

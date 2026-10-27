@@ -41,3 +41,12 @@ SECRET_KEY=uma-chave-secreta-longa
 | `GET /orders` | Pedidos do usuário logado |
 | `GET /orders/{id}` | Detalhe de um pedido |
 | `POST /orders/{id}/advance` | Avança o status da entrega (simulação) |
+| `GET /addresses` | Endereços do usuário logado |
+| `POST /addresses` | Cadastra endereço (o primeiro vira principal) |
+| `PUT /addresses/{id}` | Edita endereço |
+| `DELETE /addresses/{id}` | Exclui endereço |
+| `POST /addresses/{id}/primary` | Define endereço principal |
+| `GET /cards` | Cartões salvos do usuário logado (só bandeira e 4 últimos dígitos) |
+| `POST /cards` | Salva cartão (o número completo não é armazenado) |
+| `DELETE /cards/{id}` | Exclui cartão |
+| `POST /cards/{id}/primary` | Define cartão principal |

@@ -117,3 +117,14 @@ class Address(Base):
     state: Mapped[str] = mapped_column(String(2))
     reference: Mapped[str] = mapped_column(String(200), default="")
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
+
+class Card(Base):
+    __tablename__ = "cards"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    brand: Mapped[str] = mapped_column(String(20))
+    last4: Mapped[str] = mapped_column(String(4))
+    holder_name: Mapped[str] = mapped_column(String(120))
+    expiry: Mapped[str] = mapped_column(String(5))
+    is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
