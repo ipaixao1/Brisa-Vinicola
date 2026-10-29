@@ -126,6 +126,29 @@ Esta tabela é independente (sem chave estrangeira), porque visitantes sem conta
 - **Exclusão de conta:** endereços e cartões são apagados e os dados pessoais do usuário são anonimizados, mas os pedidos são mantidos para preservar o histórico de vendas.
 - **Exclusão de vinhos:** um vinho que já foi vendido não pode ser excluído, porque está ligado a pedidos (`order_items`).
 
+## Criar o banco e o usuário na sua máquina
+
+Cada pessoa usa o próprio MySQL local. No MySQL Workbench, conectado como administrador (`root`), execute:
+
+```sql
+CREATE DATABASE IF NOT EXISTS brisa_vinicola
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'brisa'@'localhost' IDENTIFIED BY 'brisa123';
+GRANT ALL PRIVILEGES ON brisa_vinicola.* TO 'brisa'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+A senha `brisa123` é **somente para desenvolvimento local**. Em um servidor real, use uma senha forte e nunca a coloque no repositório.
+
+Depois, na pasta `backend`, copie o modelo de configuração:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Edite o `.env` e troque o `SECRET_KEY` por uma chave sua. Em seguida, rode a API (`uvicorn app.main:app --reload`) e o `python -m app.seed`, ou execute os scripts `schema.sql` e `seed_vinhos.sql` no Workbench.
+
 ## Como recriar o banco
 
 **Opção 1: pelo Workbench.** Abra e execute, nesta ordem, `schema.sql` e depois `seed_vinhos.sql`.
