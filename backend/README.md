@@ -50,3 +50,21 @@ SECRET_KEY=uma-chave-secreta-longa
 | `POST /cards` | Salva cartão (o número completo não é armazenado) |
 | `DELETE /cards/{id}` | Exclui cartão |
 | `POST /cards/{id}/primary` | Define cartão principal |
+| `PUT /users/me` | Atualiza nome e e-mail do usuário logado |
+| `PUT /users/me/password` | Troca a senha |
+| `DELETE /users/me` | Exclui a conta (anonimiza os dados e mantém os pedidos) |
+| `POST /admin/wines` | (admin) Cadastra vinho |
+| `PUT /admin/wines/{id}` | (admin) Edita vinho |
+| `DELETE /admin/wines/{id}` | (admin) Exclui vinho (só se nunca foi vendido) |
+| `POST /contact` | Envia mensagem do Fale Conosco (público) |
+| `GET /admin/contact` | (admin) Lista mensagens (filtro `answered=true/false`) |
+| `PUT /admin/contact/{id}` | (admin) Marca como respondida |
+| `DELETE /admin/contact/{id}` | (admin) Exclui mensagem |
+
+## Primeiro administrador
+
+Quem pode cadastrar vinhos e ver as mensagens do Fale Conosco é o usuário com `is_admin = 1`. O primeiro admin é criado direto no banco, depois de cadastrar a conta:
+
+```sql
+UPDATE users SET is_admin = 1 WHERE email = 'seu-email@exemplo.com';
+```

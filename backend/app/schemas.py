@@ -61,6 +61,7 @@ class UserOut(BaseModel):
     id: int
     name: str
     email: str
+    isAdmin: bool = Field(validation_alias="is_admin")
 
 
 class TokenOut(BaseModel):

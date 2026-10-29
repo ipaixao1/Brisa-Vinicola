@@ -3,11 +3,23 @@ CREATE DATABASE IF NOT EXISTS brisa_vinicola
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE brisa_vinicola;
 
+CREATE TABLE contact_messages (
+	id INTEGER NOT NULL AUTO_INCREMENT, 
+	name VARCHAR(120) NOT NULL, 
+	email VARCHAR(255) NOT NULL, 
+	subject VARCHAR(200) NOT NULL, 
+	message TEXT NOT NULL, 
+	created_at DATETIME NOT NULL, 
+	answered BOOL NOT NULL, 
+	PRIMARY KEY (id)
+);
+
 CREATE TABLE users (
 	id INTEGER NOT NULL AUTO_INCREMENT, 
 	name VARCHAR(120) NOT NULL, 
 	email VARCHAR(255) NOT NULL, 
 	password_hash VARCHAR(255) NOT NULL, 
+	is_admin BOOL NOT NULL DEFAULT '0', 
 	created_at DATETIME NOT NULL, 
 	PRIMARY KEY (id)
 );
@@ -37,9 +49,9 @@ CREATE TABLE wines (
 	PRIMARY KEY (id)
 );
 
-CREATE INDEX ix_wines_type ON wines (type);
-
 CREATE INDEX ix_wines_grape ON wines (grape);
+
+CREATE INDEX ix_wines_type ON wines (type);
 
 CREATE TABLE addresses (
 	id INTEGER NOT NULL AUTO_INCREMENT, 

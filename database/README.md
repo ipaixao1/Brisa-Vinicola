@@ -52,6 +52,7 @@ O arquivo `brisa_vinicola.mwb` é o modelo editável (MySQL Workbench).
 | email | VARCHAR(255) | não | UNIQUE | E-mail (login) |
 | password_hash | VARCHAR(255) | não | | Senha criptografada (bcrypt) |
 | created_at | DATETIME | não | | Data do cadastro |
+| is_admin | TINYINT(1) | não | | Administrador (0 = cliente, 1 = admin) |
 
 ### orders (pedidos)
 | Coluna | Tipo | Nulo | Chave | Descrição |
@@ -104,11 +105,26 @@ O arquivo `brisa_vinicola.mwb` é o modelo editável (MySQL Workbench).
 | expiry | VARCHAR(5) | não | | Validade (MM/AA) |
 | is_primary | TINYINT(1) | não | | Cartão principal |
 
+### contact_messages (mensagens do Fale Conosco)
+| Coluna | Tipo | Nulo | Chave | Descrição |
+|---|---|---|---|---|
+| id | INT | não | PK | Identificador |
+| name | VARCHAR(120) | não | | Nome de quem escreveu |
+| email | VARCHAR(255) | não | | E-mail de contato |
+| subject | VARCHAR(200) | não | | Assunto |
+| message | TEXT | não | | Mensagem |
+| created_at | DATETIME | não | | Data de envio |
+| answered | TINYINT(1) | não | | Marcada como respondida |
+
+Esta tabela é independente (sem chave estrangeira), porque visitantes sem conta também podem enviar mensagens.
+
 ## Decisões de projeto
 - **Segurança de cartões:** o número completo e o CVV nunca são armazenados, só a bandeira e os 4 últimos dígitos.
 - **Senhas:** guardadas com hash bcrypt, nunca em texto puro.
 - **Histórico de pedidos:** o endereço e o preço unitário são copiados para o pedido, assim mudanças futuras em endereços ou preços não alteram pedidos antigos.
 - **Valores:** preços usam `DECIMAL(10,2)` pra evitar erros de arredondamento.
+- **Exclusão de conta:** endereços e cartões são apagados e os dados pessoais do usuário são anonimizados, mas os pedidos são mantidos para preservar o histórico de vendas.
+- **Exclusão de vinhos:** um vinho que já foi vendido não pode ser excluído, porque está ligado a pedidos (`order_items`).
 
 ## Como recriar o banco
 
