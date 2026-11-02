@@ -6,6 +6,7 @@ import { CartProvider } from "./context/CartContext";
 import { OrderProvider } from "./context/OrderContext";
 import { AddressProvider } from "./context/AddressContext";
 import { CardProvider } from "./context/CardContext";
+import { WinesProvider } from "./context/WinesContext";
 import App from "./App";
 import VinhosPage from "./pages/VinhosPage";
 import WineDetailPage from "./pages/WineDetailPage";
@@ -29,6 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
+        <WinesProvider>
         <CartProvider>
           <OrderProvider>
             <AddressProvider>
@@ -56,6 +58,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             </AddressProvider>
           </OrderProvider>
         </CartProvider>
+        </WinesProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

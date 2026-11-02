@@ -3,7 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WineCard from "@/components/WineCard";
-import { wines, allGrapes, allTypes, type Wine } from "@/data/wines";
+import type { Wine } from "@/data/wines";
+import { useWines } from "@/context/WinesContext";
 
 const GOLD = "#AE8648";
 const PAGE_SIZE = 9;
@@ -28,6 +29,7 @@ const typeToTab: Record<Wine["type"], CategoryTab> = {
 
 export default function VinhosPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { wines, allGrapes, allTypes, loading } = useWines();
 
   // Lê filtros vindos pela URL (ex: Home → "Tipo de vinho" ou busca no Header)
   const initialTab = (() => {
@@ -105,7 +107,7 @@ export default function VinhosPage() {
     }
 
     return list;
-  }, [tab, search, priceFilter, typeFilters, grapeFilters, sort]);
+  }, [wines, tab, search, priceFilter, typeFilters, grapeFilters, sort]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -268,7 +270,7 @@ export default function VinhosPage() {
         <div className="vgrid-area">
           {paginated.length === 0 ? (
             <div className="vempty">
-              <p>Nenhum vinho encontrado com os filtros selecionados.</p>
+              <p>{loading ? "Carregando vinhos..." : "Nenhum vinho encontrado com os filtros selecionados."}</p>
               <button className="vsidebar-clear" onClick={clearAll}>Limpar filtros</button>
             </div>
           ) : (

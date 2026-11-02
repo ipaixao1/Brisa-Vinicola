@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { wines } from "@/data/wines";
+import { useWines } from "@/context/WinesContext";
 
 const GOLD = "#AE8648";
 
@@ -375,7 +375,7 @@ export const ARTICLE_DB: Record<string, ArticleDetail> = {
 
 // ── Render helpers ─────────────────────────────────────────────────────────────
 function SectionBlock({ section }: { section: ArticleSection }) {
-  const wineList = wines;
+  const { wines: wineList } = useWines();
 
   if (section.type === "text") return (
     <div style={{ marginBottom: 32 }}>

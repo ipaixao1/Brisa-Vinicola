@@ -6,13 +6,14 @@ import ArticleModal from "@/components/ArticleModal";
 import { useAuth } from "@/context/AuthContext";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import { useCart } from "@/context/CartContext";
-import { wines } from "@/data/wines";
+import { useWines } from "@/context/WinesContext";
 
 const GOLD = "#AE8648";
 
 export default function ConteudoPersonalizadoPage() {
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const { wines } = useWines();
   const [openArticle, setOpenArticle] = useState<string | null>(null);
   const { data, error } = useRecommendations();
 

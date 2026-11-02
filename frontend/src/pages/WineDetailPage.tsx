@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WineCard from "@/components/WineCard";
-import { wines } from "@/data/wines";
+import { useWines } from "@/context/WinesContext";
 import { useCart } from "@/context/CartContext";
 
 const GOLD = "#AE8648";
@@ -13,6 +13,7 @@ export default function WineDetailPage() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
+  const { wines, loading } = useWines();
   const wine = wines.find((w) => w.id === Number(id));
 
   const [qty, setQty] = useState(1);
@@ -23,8 +24,8 @@ export default function WineDetailPage() {
       <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
         <Header />
         <div className="cart-empty">
-          <h3 className="cart-empty-title font-serif">Vinho não encontrado</h3>
-          <p className="cart-empty-sub">Esse produto não existe ou foi removido do catálogo.</p>
+          <h3 className="cart-empty-title font-serif">{loading ? "Carregando..." : "Vinho não encontrado"}</h3>
+          <p className="cart-empty-sub">{loading ? "Buscando o vinho no catálogo." : "Esse produto não existe ou foi removido do catálogo."}</p>
           <Link to="/vinhos" className="auth-btn" style={{ display: "inline-block", textDecoration: "none", textAlign: "center", padding: "14px 40px", fontSize: 13 }}>
             VER VINHOS
           </Link>

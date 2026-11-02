@@ -6,7 +6,7 @@ import Quiz from "@/components/Quiz";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useRecommendations } from "@/hooks/useRecommendations";
-import { wines } from "@/data/wines";
+import { useWines } from "@/context/WinesContext";
 import heroImg from "@/imports/ChatGPT_Image_12_de_set._de_2026__15_41_42.png";
 import videoTerroir from "@/imports/WhatsApp_Video_2026-09-12_at_16.34.47.mp4";
 import videoPaixao from "@/imports/WhatsApp_Video_2026-09-12_at_16.34.53.mp4";
@@ -50,6 +50,7 @@ export default function App() {
   const [quizOpen, setQuizOpen] = useState(false);
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const { wines } = useWines();
   const navigate = useNavigate();
   const { data: recomendacao } = useRecommendations();
   const personalizedWines = recomendacao?.wines.slice(0, 3) ?? [];
