@@ -24,19 +24,31 @@ export default function MeusEnderecosPage() {
 
   const editingAddr = editingId ? addresses.find(a => a.id === editingId) : null;
 
-  function handleSaveNew(data: AddressFormData) {
-    addAddress(data);
-    setShowForm(false);
+  async function handleSaveNew(data: AddressFormData) {
+    try {
+      await addAddress(data);
+      setShowForm(false);
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Não foi possível salvar o endereço.");
+    }
   }
 
-  function handleSaveEdit(data: AddressFormData) {
+  async function handleSaveEdit(data: AddressFormData) {
     if (!editingId) return;
-    updateAddress(editingId, data);
-    setEditingId(null);
+    try {
+      await updateAddress(editingId, data);
+      setEditingId(null);
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Não foi possível salvar o endereço.");
+    }
   }
 
-  function handleDelete(id: string) {
-    deleteAddress(id);
+  async function handleDelete(id: string) {
+    try {
+      await deleteAddress(id);
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Não foi possível excluir o endereço.");
+    }
     setConfirmDeleteId(null);
   }
 

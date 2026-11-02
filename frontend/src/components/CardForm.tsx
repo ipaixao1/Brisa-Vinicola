@@ -40,12 +40,16 @@ export default function CardForm({ onSave, onCancel, defaultSave = false, onCard
     return Object.keys(errs).length === 0;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
-    const card = addCard({ number, name, expiry, save });
-    onCardAdded?.(card.id);
-    onSave();
+    try {
+      const card = await addCard({ number, name, expiry, save });
+      onCardAdded?.(card.id);
+      onSave();
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Não foi possível salvar o cartão.");
+    }
   }
 
   const inp: React.CSSProperties = {

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { api } from "@/services/api";
 
 export type CardBrand = "Visa" | "Mastercard" | "Elo" | "Amex" | "Hipercard" | "Outro";
 
@@ -12,17 +13,22 @@ export interface SavedCard {
   isPrimary: boolean;
 }
 
+// A API usa id numérico; no front o id é texto
+type ApiCard = Omit<SavedCard, "id"> & { id: number };
+
 interface CardContextType {
   cards: SavedCard[];
-  addCard: (raw: { number: string; name: string; expiry: string; save: boolean }) => SavedCard;
-  deleteCard: (id: string) => void;
-  setPrimary: (id: string) => void;
+  addCard: (raw: { number: string; name: string; expiry: string; save: boolean }) => Promise<SavedCard>;
+  deleteCard: (id: string) => Promise<void>;
+  setPrimary: (id: string) => Promise<void>;
   getPrimary: () => SavedCard | null;
 }
 
 const CardContext = createContext<CardContextType | null>(null);
 
-function storageKey(email: string) { return `brisa_cards_${email}`; }
+function toCard(c: ApiCard): SavedCard {
+  return { ...c, id: String(c.id) };
+}
 
 function detectBrand(number: string): CardBrand {
   const n = number.replace(/\s/g, "");
@@ -38,54 +44,62 @@ export function CardProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [cards, setCards] = useState<SavedCard[]>([]);
 
+  async function reload() {
+    const list = await api<ApiCard[]>("/cards");
+    setCards(list.map(toCard));
+  }
+
   useEffect(() => {
-    if (!user) { setCards([]); return; }
-    try {
-      const raw = localStorage.getItem(storageKey(user.email));
-      setCards(raw ? JSON.parse(raw) : []);
-    } catch { setCards([]); }
+    if (!user) {
+      setCards([]);
+      return;
+    }
+    let cancelled = false;
+    api<ApiCard[]>("/cards")
+      .then((list) => {
+        if (!cancelled) setCards(list.map(toCard));
+      })
+      .catch(() => {
+        if (!cancelled) setCards([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [user?.email]);
 
-  function save(list: SavedCard[]) {
-    setCards(list);
-    if (user) localStorage.setItem(storageKey(user.email), JSON.stringify(list));
-  }
-
-  function addCard(raw: { number: string; name: string; expiry: string; save: boolean }): SavedCard {
-    const last4 = raw.number.replace(/\s/g, "").slice(-4);
-    const brand = detectBrand(raw.number);
-    const isFirst = cards.length === 0;
-    const card: SavedCard = {
-      id: crypto.randomUUID(),
-      brand,
-      last4,
-      holderName: raw.name.trim().toUpperCase(),
-      expiry: raw.expiry,
-      isPrimary: isFirst,
-    };
-    if (raw.save) {
-      const list = isFirst
-        ? [card]
-        : [...cards, card];
-      save(list);
+  async function addCard(raw: { number: string; name: string; expiry: string; save: boolean }): Promise<SavedCard> {
+    // Sem "salvar cartão": nada vai para a API
+    if (!raw.save) {
+      return {
+        id: `temp-${crypto.randomUUID()}`,
+        brand: detectBrand(raw.number),
+        last4: raw.number.replace(/\s/g, "").slice(-4),
+        holderName: raw.name.trim().toUpperCase(),
+        expiry: raw.expiry,
+        isPrimary: false,
+      };
     }
-    return card;
+    // A API guarda só a bandeira e os 4 últimos dígitos
+    const created = await api<ApiCard>("/cards", {
+      method: "POST",
+      body: { number: raw.number, name: raw.name, expiry: raw.expiry },
+    });
+    await reload();
+    return toCard(created);
   }
 
-  function deleteCard(id: string) {
-    let list = cards.filter(c => c.id !== id);
-    if (list.length > 0 && !list.some(c => c.isPrimary)) {
-      list[0] = { ...list[0], isPrimary: true };
-    }
-    save(list);
+  async function deleteCard(id: string) {
+    await api(`/cards/${id}`, { method: "DELETE" });
+    await reload();
   }
 
-  function setPrimary(id: string) {
-    save(cards.map(c => ({ ...c, isPrimary: c.id === id })));
+  async function setPrimary(id: string) {
+    await api(`/cards/${id}/primary`, { method: "POST" });
+    await reload();
   }
 
   function getPrimary(): SavedCard | null {
-    return cards.find(c => c.isPrimary) ?? cards[0] ?? null;
+    return cards.find((c) => c.isPrimary) ?? cards[0] ?? null;
   }
 
   return (

@@ -61,10 +61,14 @@ export default function CheckoutPage() {
     return () => clearTimeout(t);
   }, [selectedId]);
 
-  function handleAddAddress(data: AddressFormData) {
-    const newAddr = addAddress(data);
-    setSelectedId(newAddr.id);
-    setShowAddForm(false);
+  async function handleAddAddress(data: AddressFormData) {
+    try {
+      const newAddr = await addAddress(data);
+      setSelectedId(newAddr.id);
+      setShowAddForm(false);
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Não foi possível salvar o endereço.");
+    }
   }
 
   function handleProceed(e: React.FormEvent) {

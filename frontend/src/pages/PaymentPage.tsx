@@ -96,8 +96,8 @@ export default function PaymentPage() {
   const { subtotal, frete, total, items, address } = state;
   const selectedCard = cards.find(c => c.id === selectedCardId) ?? null;
 
-  function createOrder() {
-    const order = addOrder({
+  async function createOrder() {
+    const order = await addOrder({
       items, subtotal, frete, total,
       payMethod,
       installments: payMethod === "cartao-credito" ? installments : 1,
@@ -109,6 +109,17 @@ export default function PaymentPage() {
     return order.id;
   }
 
+  async function finishOrder() {
+    try {
+      const id = await createOrder();
+      setOrderId(id);
+      setStage("confirmed");
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Não foi possível finalizar o pedido.");
+      setStage("select");
+    }
+  }
+
   function handlePix() {
     setStage("pix-waiting");
     let count = 10;
@@ -118,9 +129,7 @@ export default function PaymentPage() {
       setPixCountdown(count);
       if (count <= 0) {
         clearInterval(timer);
-        const id = createOrder();
-        setOrderId(id);
-        setStage("confirmed");
+        void finishOrder();
       }
     }, 1000);
   }
@@ -131,9 +140,7 @@ export default function PaymentPage() {
     setTimeout(() => setProcessingMsg("Verificando dados da transação..."), 1500);
     setTimeout(() => setProcessingMsg("Autorizando com o banco..."), 3000);
     setTimeout(() => {
-      const id = createOrder();
-      setOrderId(id);
-      setStage("confirmed");
+      void finishOrder();
     }, 4500);
   }
 
