@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useWines } from "@/context/WinesContext";
+import { useCart } from "@/context/CartContext";
 
 const GOLD = "#AE8648";
 
@@ -376,6 +377,7 @@ export const ARTICLE_DB: Record<string, ArticleDetail> = {
 // ── Render helpers ─────────────────────────────────────────────────────────────
 function SectionBlock({ section }: { section: ArticleSection }) {
   const { wines: wineList } = useWines();
+  const { addToCart } = useCart();
 
   if (section.type === "text") return (
     <div style={{ marginBottom: 32 }}>
@@ -439,8 +441,8 @@ function SectionBlock({ section }: { section: ArticleSection }) {
                 <p style={{ fontFamily: "Poppins, sans-serif", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: GOLD, margin: "0 0 4px" }}>{wine.type}</p>
                 <p style={{ fontFamily: "Poppins, sans-serif", fontSize: 14, fontWeight: 600, color: "#fff", margin: "0 0 4px" }}>{wine.name}</p>
                 <p style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 700, color: "#fff", margin: "0 0 10px" }}>R$ {wine.price.toFixed(2).replace(".", ",")}</p>
-                <button style={{ background: GOLD, color: "#0e0d0c", border: "none", padding: "6px 14px", fontFamily: "Poppins", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", cursor: "pointer" }}>
-                  COMPRAR
+                <button style={{ background: GOLD, color: "#0e0d0c", border: "none", padding: "6px 14px", fontFamily: "Poppins", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", cursor: "pointer" }} onClick={() => addToCart(wine)}>
+                  ADICIONAR AO CARRINHO
                 </button>
               </div>
             </div>

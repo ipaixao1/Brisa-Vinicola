@@ -2,20 +2,142 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ArticleModal from "@/components/ArticleModal";
+import ArticleModal, { ARTICLE_DB } from "@/components/ArticleModal";
 import { useAuth } from "@/context/AuthContext";
-import { useRecommendations } from "@/hooks/useRecommendations";
+import { useRecommendations, type ContentItem } from "@/hooks/useRecommendations";
 import { useCart } from "@/context/CartContext";
 import { useWines } from "@/context/WinesContext";
+import type { Wine } from "@/data/wines";
 
 const GOLD = "#AE8648";
+
+// Ordem e textos de cada grupo de vídeos
+const GRUPOS: { categoria: string; titulo: string; subtitulo: string }[] = [
+  { categoria: "Seu perfil", titulo: "Para o seu perfil de sabor", subtitulo: "Conteúdos escolhidos pelo seu jeito de gostar de vinho." },
+  { categoria: "Para o seu nível", titulo: "Para o seu nível", subtitulo: "Do básico ao avançado, no seu ritmo." },
+  { categoria: "Para o seu prato", titulo: "Para o que você vai comer", subtitulo: "Harmonizações para o prato que você escolheu." },
+  { categoria: "Para a sua ocasião", titulo: "Para a sua ocasião", subtitulo: "Escolhas certas para o momento que você descreveu." },
+];
+
+function idDoVideo(url: string): string {
+  try {
+    return new URL(url).searchParams.get("v") ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function Miniatura({ item, grande = false }: { item: ContentItem; grande?: boolean }) {
+  const [falhou, setFalhou] = useState(false);
+  const id = idDoVideo(item.videoUrl);
+  return (
+    <a
+      href={item.videoUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`cpv-thumb${grande ? " cpv-thumb-big" : ""}`}
+      aria-label={`Assistir no YouTube: ${item.videoTitle}`}
+    >
+      {!falhou && id && (
+        <img
+          src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`}
+          alt=""
+          loading="lazy"
+          onError={() => setFalhou(true)}
+        />
+      )}
+      <span className="cpv-play" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+      </span>
+      <span className="cpv-yt-badge">YouTube</span>
+    </a>
+  );
+}
+
+interface CartaoProps {
+  item: ContentItem;
+  vinhos: Wine[];
+  adicionados: Record<number, boolean>;
+  onAdd: (w: Wine) => void;
+  onArtigo: (titulo: string) => void;
+  destaque?: boolean;
+}
+
+function CartaoDeVideo({ item, vinhos, adicionados, onAdd, onArtigo, destaque = false }: CartaoProps) {
+  const temArtigo = !!item.article && !!ARTICLE_DB[item.article];
+  return (
+    <article className={`cpv-card${destaque ? " cpv-card-feature" : ""}`}>
+      <Miniatura item={item} grande={destaque} />
+      <div className="cpv-card-body">
+        <div className="cpv-tags">
+          <span className="cpv-chip">{item.tag}</span>
+          {destaque && <span className="cpv-chip cpv-chip-gold">Comece por aqui</span>}
+        </div>
+        <h3 className="cpv-card-title">{item.title}</h3>
+        <p className="cpv-card-desc">{item.description}</p>
+
+        <p className="cpv-video-title">▶ {item.videoTitle}</p>
+
+        <p className="cpv-label">Pontos-chave</p>
+        <ul className="cpv-learn">
+          {item.learn.map((l) => <li key={l}>{l}</li>)}
+        </ul>
+
+        <div className="cpv-actions">
+          <a href={item.videoUrl} target="_blank" rel="noopener noreferrer" className="cpv-btn-primary">
+            Assistir no YouTube ↗
+          </a>
+          {temArtigo && (
+            <button type="button" className="cpv-btn-ghost" onClick={() => onArtigo(item.article!)}>
+              Ler artigo
+            </button>
+          )}
+        </div>
+
+        {vinhos.length > 0 && (
+          <div className="cpv-products">
+            <p className="cpv-label">Vinhos para este assunto</p>
+            <div className="cpv-products-list">
+              {vinhos.map((w) => (
+                <div key={w.id} className="cpv-product">
+                  <Link to={`/vinhos/${w.id}`} className="cpv-product-img">
+                    <img src={w.img} alt={w.name} />
+                  </Link>
+                  <div className="cpv-product-info">
+                    <Link to={`/vinhos/${w.id}`} className="cpv-product-name">{w.name}</Link>
+                    <span className="cpv-product-meta">{w.type} · {w.grape}</span>
+                    <span className="cpv-product-price">R$ {w.price.toFixed(2).replace(".", ",")}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={`cpv-add${adicionados[w.id] ? " cpv-add-ok" : ""}`}
+                    onClick={() => onAdd(w)}
+                  >
+                    {adicionados[w.id] ? "Adicionado ✓" : "Adicionar"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
 
 export default function ConteudoPersonalizadoPage() {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const { wines } = useWines();
   const [openArticle, setOpenArticle] = useState<string | null>(null);
+  const [adicionados, setAdicionados] = useState<Record<number, boolean>>({});
   const { data, error } = useRecommendations();
+
+  function adicionar(wine: Wine) {
+    addToCart(wine);
+    setAdicionados((a) => ({ ...a, [wine.id]: true }));
+    window.setTimeout(() => setAdicionados((a) => ({ ...a, [wine.id]: false })), 1800);
+  }
 
   if (!user) {
     return (
@@ -41,7 +163,7 @@ export default function ConteudoPersonalizadoPage() {
         <div className="cp-no-quiz">
           <div className="auth-deco-line" style={{ margin: "0 auto 24px" }} />
           <h2 className="cp-no-quiz-title font-serif">Quer descobrir seus vinhos ideais?</h2>
-          <p className="cp-no-quiz-sub">Responda ao nosso quiz e criaremos uma seleção personalizada de vinhos e conteúdos para você.</p>
+          <p className="cp-no-quiz-sub">Responda ao nosso quiz e criaremos uma seleção personalizada de vinhos e vídeos para você.</p>
           <Link to="/" className="cp-quiz-btn">FAZER O QUIZ</Link>
         </div>
         <Footer />
@@ -65,8 +187,12 @@ export default function ConteudoPersonalizadoPage() {
 
   const scored = data.wines.slice(0, 3);
   const content = data.content;
-  const profile = data.profile;
-  const allTitles = content.map(c => c.title);
+  const destaque = content[0];
+  const resto = content.slice(1);
+
+  // vinhos do catálogo (com imagem e preço) que combinam com cada vídeo
+  const vinhosDe = (item: ContentItem): Wine[] =>
+    item.wineIds.map((id) => wines.find((w) => w.id === id)).filter((w): w is Wine => !!w);
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -77,31 +203,54 @@ export default function ConteudoPersonalizadoPage() {
         <div className="auth-deco-line" style={{ margin: "0 auto 20px" }} />
         <p className="cp-greeting">Olá, {user.name}!</p>
         <h1 className="cp-title font-serif">Conteúdo Personalizado</h1>
-        <p className="cp-sub">Selecionamos conteúdos e vinhos com base no seu perfil: <strong style={{ color: GOLD }}>{profile}</strong></p>
+        <p className="cp-sub">Vídeos e vinhos escolhidos para o seu jeito de gostar de vinho.</p>
       </section>
 
       <div className="cp-main">
 
-        {/* Content articles */}
-        <section className="cp-section">
-          <h2 className="cp-section-title">Conteúdos para você</h2>
-          <div className="cp-articles">
-            {content.map((item, i) => (
-              <article key={i} className="cp-article">
-                <span className="cp-article-tag">{item.tag}</span>
-                <h3 className="cp-article-title">{item.title}</h3>
-                <p className="cp-article-desc">{item.description}</p>
-                <button
-                  className="cp-article-link"
-                  style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit" }}
-                  onClick={() => setOpenArticle(item.title)}
-                >
-                  Ler mais →
-                </button>
-              </article>
-            ))}
+        {/* Perfil */}
+        <section className="cpv-profile">
+          <div>
+            <p className="cpv-label">Seu perfil</p>
+            <h2 className="cpv-profile-name font-serif">{data.profile}</h2>
+            <p className="cpv-profile-desc">{data.profileDescription}</p>
+            <div className="cpv-traits">
+              {data.traits.map((t) => <span key={t} className="cpv-trait">{t}</span>)}
+            </div>
+          </div>
+          <div className="cpv-level">
+            <p className="cpv-label">Seu nível</p>
+            <p className="cpv-level-name">{data.level}</p>
+            <p className="cpv-level-tip">{data.levelTip}</p>
+            <p className="cpv-level-count"><strong>{content.length}</strong> vídeos selecionados para você</p>
+            <Link to="/" className="cpv-retake">Refazer o quiz</Link>
           </div>
         </section>
+
+        {/* Destaque */}
+        {destaque && (
+          <section className="cp-section">
+            <h2 className="cp-section-title">Para começar</h2>
+            <CartaoDeVideo item={destaque} vinhos={vinhosDe(destaque)} adicionados={adicionados} onAdd={adicionar} onArtigo={setOpenArticle} destaque />
+          </section>
+        )}
+
+        {/* Demais vídeos, agrupados */}
+        {GRUPOS.map((g) => {
+          const itens = resto.filter((c) => c.category === g.categoria);
+          if (itens.length === 0) return null;
+          return (
+            <section key={g.categoria} className="cp-section">
+              <h2 className="cp-section-title">{g.titulo}</h2>
+              <p className="cpv-section-sub">{g.subtitulo}</p>
+              <div className="cpv-grid">
+                {itens.map((item) => (
+                  <CartaoDeVideo key={item.id} item={item} vinhos={vinhosDe(item)} adicionados={adicionados} onAdd={adicionar} onArtigo={setOpenArticle} />
+                ))}
+              </div>
+            </section>
+          );
+        })}
 
         {/* Recommended wines */}
         <section className="cp-section">
@@ -127,8 +276,8 @@ export default function ConteudoPersonalizadoPage() {
                     <p style={{ fontFamily: "Poppins", fontSize: 16, fontWeight: 700, color: "#fff", margin: "0 0 14px" }}>
                       R$ {wine.price.toFixed(2).replace(".", ",")}
                     </p>
-                    <button className="vcard-btn" style={{ width: "auto", padding: "8px 18px" }} onClick={() => addToCart(wines.find(w => w.id === wine.id)!)}>
-                      Adicionar ao carrinho
+                    <button className="vcard-btn" style={{ width: "auto", padding: "8px 18px" }} onClick={() => { const w = wines.find((x) => x.id === wine.id); if (w) adicionar(w); }}>
+                      {adicionados[wine.id] ? "Adicionado ✓" : "Adicionar ao carrinho"}
                     </button>
                   </div>
                 </div>
@@ -150,7 +299,7 @@ export default function ConteudoPersonalizadoPage() {
           title={openArticle}
           onClose={() => setOpenArticle(null)}
           onNavigate={(t) => setOpenArticle(t)}
-          allTitles={allTitles}
+          allTitles={Object.keys(ARTICLE_DB)}
         />
       )}
     </div>

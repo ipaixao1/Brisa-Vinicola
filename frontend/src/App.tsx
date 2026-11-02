@@ -421,7 +421,7 @@ export default function App() {
                         <span className="cp-article-tag">{c.tag}</span>
                         <h4 className="home-pa-title">{c.title}</h4>
                         <p className="home-pa-desc">{c.description}</p>
-                        <a href="#" className="cp-article-link">Ler mais →</a>
+                        <a href={c.videoUrl} target="_blank" rel="noopener noreferrer" className="cp-article-link">Assistir ao vídeo ↗</a>
                       </div>
                     ))}
                   </div>
