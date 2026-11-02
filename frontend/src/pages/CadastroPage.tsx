@@ -16,16 +16,20 @@ export default function CadastroPage() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (password !== confirm) { setError("As senhas não coincidem."); return; }
     if (password.length < 6) { setError("A senha deve ter pelo menos 6 caracteres."); return; }
-    const ok = register(name, email, password);
-    if (ok) {
-      navigate(from, { replace: true });
-    } else {
-      setError("Este e-mail já está cadastrado.");
+    try {
+      const ok = await register(name, email, password);
+      if (ok) {
+        navigate(from, { replace: true });
+      } else {
+        setError("Este e-mail já está cadastrado.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível criar a conta. Tente novamente.");
     }
   }
 

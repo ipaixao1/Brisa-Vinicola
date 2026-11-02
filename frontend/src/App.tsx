@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Quiz from "@/components/Quiz";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { scoreWines, getPersonalizedContent } from "@/utils/recommendations";
+import { useRecommendations } from "@/hooks/useRecommendations";
 import { wines } from "@/data/wines";
 import heroImg from "@/imports/ChatGPT_Image_12_de_set._de_2026__15_41_42.png";
 import videoTerroir from "@/imports/WhatsApp_Video_2026-09-12_at_16.34.47.mp4";
@@ -51,8 +51,9 @@ export default function App() {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  const personalizedWines = user?.quizAnswers ? scoreWines(user.quizAnswers).slice(0, 3) : [];
-  const personalizedContent = user?.quizAnswers ? getPersonalizedContent(user.quizAnswers).slice(0, 2) : [];
+  const { data: recomendacao } = useRecommendations();
+  const personalizedWines = recomendacao?.wines.slice(0, 3) ?? [];
+  const personalizedContent = recomendacao?.content.slice(0, 2) ?? [];
 
   const prevSlide = () => setSlide((s) => (s - 1 + heroSlides.length) % heroSlides.length);
   const nextSlide = () => setSlide((s) => (s + 1) % heroSlides.length);

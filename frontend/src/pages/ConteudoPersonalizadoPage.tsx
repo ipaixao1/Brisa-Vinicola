@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleModal from "@/components/ArticleModal";
 import { useAuth } from "@/context/AuthContext";
-import { scoreWines, getPersonalizedContent, getProfileLabel } from "@/utils/recommendations";
+import { useRecommendations } from "@/hooks/useRecommendations";
 import { useCart } from "@/context/CartContext";
 import { wines } from "@/data/wines";
 
@@ -14,6 +14,7 @@ export default function ConteudoPersonalizadoPage() {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const [openArticle, setOpenArticle] = useState<string | null>(null);
+  const { data, error } = useRecommendations();
 
   if (!user) {
     return (
@@ -47,9 +48,23 @@ export default function ConteudoPersonalizadoPage() {
     );
   }
 
-  const scored = scoreWines(user.quizAnswers).slice(0, 3);
-  const content = getPersonalizedContent(user.quizAnswers);
-  const profile = getProfileLabel(user.quizAnswers);
+  if (!data) {
+    return (
+      <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <Header />
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center" }}>
+          <p style={{ fontFamily: "Poppins", color: "rgba(255,255,255,0.5)" }}>
+            {error ?? "Carregando seu conteúdo..."}
+          </p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const scored = data.wines.slice(0, 3);
+  const content = data.content;
+  const profile = data.profile;
   const allTitles = content.map(c => c.title);
 
   return (
