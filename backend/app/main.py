@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from .config import settings
 from . import models  # noqa: F401  (registra as tabelas)
 from .database import Base, engine, get_db
 from .routers import addresses, admin_wines, auth, cards, contact, orders, quiz, users, wines
@@ -13,7 +14,7 @@ app = FastAPI(title="Brisa Vinícola API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[o.strip() for o in settings.cors_origins.split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

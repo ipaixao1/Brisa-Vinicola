@@ -1,4 +1,8 @@
-import bottleImg from "@/imports/ChatGPT_Image_12_de_set._de_2026__15_58_31-2.png";
+import garrafaTinto from "@/imports/garrafa-tinto.webp";
+import garrafaBranco from "@/imports/garrafa-branco.webp";
+import garrafaRose from "@/imports/garrafa-rose.webp";
+import garrafaEspumante from "@/imports/garrafa-espumante.webp";
+import garrafaPrimitivo from "@/imports/garrafa-primitivo.webp";
 import type { Wine } from "@/data/wines";
 
 // Endereço da API. Em produção vem de VITE_API_URL (veja frontend/.env.example).
@@ -69,6 +73,19 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
 // A API devolve o nome do arquivo da garrafa; no front a imagem é importada no bundle.
 export type ApiWine = Omit<Wine, "img" | "type"> & { img: string; type: string };
 
+// Uma garrafa por categoria. O "Primitivo di Manduria" tem garrafa própria.
+const garrafaPorTipo: Record<string, string> = {
+  Tinto: garrafaTinto,
+  Branco: garrafaBranco,
+  "Rosé": garrafaRose,
+  Espumante: garrafaEspumante,
+};
+
+export function garrafaDoVinho(name: string, type: string): string {
+  if (name.trim().toLowerCase() === "primitivo di manduria") return garrafaPrimitivo;
+  return garrafaPorTipo[type] ?? garrafaTinto;
+}
+
 export function toWine(w: ApiWine): Wine {
-  return { ...w, type: w.type as Wine["type"], img: bottleImg };
+  return { ...w, type: w.type as Wine["type"], img: garrafaDoVinho(w.name, w.type) };
 }

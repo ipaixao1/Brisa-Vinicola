@@ -13,6 +13,10 @@ export default function Header() {
   const { totalItems } = useCart();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // fecha o menu do celular ao trocar de página
+  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
   useEffect(() => {
     function onScroll() { setScrolled(window.scrollY > 40); }
@@ -63,7 +67,7 @@ export default function Header() {
 
   return (
     <header style={{
-      background: scrolled ? "rgba(18,15,12,0.97)" : "transparent",
+      background: scrolled || menuOpen ? "rgba(18,15,12,0.97)" : "transparent",
       borderBottom: scrolled ? "1px solid rgba(42,37,32,0.6)" : "none",
       backdropFilter: scrolled ? "blur(12px)" : "none",
       position: "fixed",
@@ -72,7 +76,7 @@ export default function Header() {
       width: "100%",
       transition: "background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease",
     }}>
-      <div style={{
+      <div className="hdr-inner" style={{
         maxWidth: 1200,
         margin: "0 auto",
         padding: "0 24px",
@@ -83,11 +87,11 @@ export default function Header() {
       }}>
         {/* Logo */}
         <Link to="/" style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
-          <img src={logoImg} alt="Brisa Vinícola" style={{ height: 54, width: "auto", objectFit: "contain" }} />
+          <img className="hdr-logo" src={logoImg} alt="Brisa Vinícola" style={{ height: 54, width: "auto", objectFit: "contain" }} />
         </Link>
 
         {/* Nav */}
-        <nav style={{ display: "flex", gap: 28, flex: 1, justifyContent: "flex-start", marginLeft: 8, overflow: "hidden" }}>
+        <nav className="hdr-nav" style={{ display: "flex", gap: 28, flex: 1, justifyContent: "flex-start", marginLeft: 8, overflow: "hidden" }}>
           {navItems.map(({ label, to }) => {
             const active = pathname === to || (to !== "/" && pathname.startsWith(to));
             const isPersonal = label === "Conteúdo Personalizado";
@@ -113,7 +117,7 @@ export default function Header() {
         </nav>
 
         {/* Search */}
-        <form onSubmit={handleSearchSubmit} style={{
+        <form className="hdr-search hdr-search-desktop" onSubmit={handleSearchSubmit} style={{
           display: "flex",
           alignItems: "center",
           background: "rgba(255,255,255,0.07)",
@@ -147,7 +151,8 @@ export default function Header() {
         </form>
 
         {/* Cart & User */}
-        <div style={{ display: "flex", alignItems: "center", gap: 20, flexShrink: 0 }}>
+        <div className="hdr-spacer" />
+        <div className="hdr-actions" style={{ display: "flex", alignItems: "center", gap: 20, flexShrink: 0 }}>
           <Link to="/carrinho" style={{ display: "flex", flexDirection: "column", alignItems: "center", textDecoration: "none", gap: 2 }}>
             <div style={{ position: "relative" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.8">
@@ -251,7 +256,47 @@ export default function Header() {
             )}
           </div>
         </div>
+
+        {/* Botão do menu (só aparece no celular/tablet) */}
+        <button
+          type="button"
+          className="hdr-burger"
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+            {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
       </div>
+
+      {/* Menu do celular */}
+      {menuOpen && (
+        <div className="hdr-mobile">
+          <form onSubmit={(e) => { handleSearchSubmit(e); setMenuOpen(false); }} style={{
+            display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 6,
+            background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)",
+          }}>
+            <input
+              type="text"
+              placeholder="Buscar vinhos..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              style={{ background: "transparent", border: "none", outline: "none", color: "#fff", fontFamily: "Poppins", fontSize: 16, flex: 1, minWidth: 0 }}
+            />
+            <button type="submit" aria-label="Buscar" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </button>
+          </form>
+          {navItems.map(({ label, to }) => {
+            const active = pathname === to || (to !== "/" && pathname.startsWith(to));
+            return <Link key={label} to={to} className={`hdr-mlink${active ? " active" : ""}`}>{label}</Link>;
+          })}
+        </div>
+      )}
     </header>
   );
 }
