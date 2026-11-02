@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import User, Wine
-from ..recommendations import personalized_content, profile_label, rank_wines
+from ..recommendations import perfil_detalhado, personalized_content, rank_wines
 from ..schemas import UserOut, WineOut
 from ..schemas_quiz import QuizAnswers, RecommendationOut
 from ..security import get_current_user
@@ -21,9 +21,10 @@ def montar_recomendacao(answers: dict, db: Session) -> dict:
         dados.update({"score": compat, "compatibility": compat, "label": rotulo})
         itens.append(dados)
     return {
-        "profile": profile_label(answers),
+        **perfil_detalhado(answers),
         "wines": itens,
-        "content": personalized_content(answers),
+        # cada conteúdo já vem com os vinhos da loja que combinam com o assunto
+        "content": personalized_content(answers, ranking),
     }
 
 

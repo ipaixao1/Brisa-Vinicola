@@ -10,19 +10,34 @@ export interface ScoredWine extends Wine {
 }
 
 export interface ContentItem {
+  id: string;
+  category: string;
   title: string;
   description: string;
   tag: string;
+  videoUrl: string; // link do vídeo no YouTube
+  videoTitle: string;
+  learn: string[]; // pontos-chave do tema
+  article?: string | null; // artigo da loja sobre o mesmo assunto
+  wineIds: number[]; // vinhos da loja relacionados ao assunto
 }
 
 export interface Recommendation {
   profile: string;
+  profileDescription: string;
+  traits: string[];
+  level: string;
+  levelTip: string;
   wines: ScoredWine[];
   content: ContentItem[];
 }
 
 interface ApiRecommendation {
   profile: string;
+  profileDescription: string;
+  traits: string[];
+  level: string;
+  levelTip: string;
   wines: (ApiWine & { score: number; compatibility: number; label: string })[];
   content: ContentItem[];
 }
@@ -49,6 +64,10 @@ export function useRecommendations() {
         if (cancelled) return;
         setData({
           profile: r.profile,
+          profileDescription: r.profileDescription,
+          traits: r.traits,
+          level: r.level,
+          levelTip: r.levelTip,
           content: r.content,
           wines: r.wines.map((w) => ({
             ...toWine(w),
