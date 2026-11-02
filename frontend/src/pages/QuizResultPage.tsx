@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
-import { scoreWines, getProfileLabel } from "@/utils/recommendations";
+import { useRecommendations } from "@/hooks/useRecommendations";
 import { Link } from "react-router-dom";
 
 const GOLD = "#AE8648";
@@ -16,6 +16,7 @@ function CompatBar({ pct }: { pct: number }) {
 
 export default function QuizResultPage() {
   const { user } = useAuth();
+  const { data, error } = useRecommendations();
 
   if (!user?.quizAnswers) {
     return (
@@ -34,9 +35,22 @@ export default function QuizResultPage() {
     );
   }
 
-  const scored = scoreWines(user.quizAnswers);
-  const top = scored.slice(0, 6);
-  const profile = getProfileLabel(user.quizAnswers);
+  if (!data) {
+    return (
+      <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <Header />
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center" }}>
+          <p style={{ fontFamily: "Poppins", color: "rgba(255,255,255,0.5)" }}>
+            {error ?? "Carregando suas recomendações..."}
+          </p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const top = data.wines.slice(0, 6);
+  const profile = data.profile;
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>

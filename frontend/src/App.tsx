@@ -5,12 +5,17 @@ import Header from "@/components/Header";
 import Quiz from "@/components/Quiz";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { scoreWines, getPersonalizedContent } from "@/utils/recommendations";
-import { wines } from "@/data/wines";
+import { useRecommendations } from "@/hooks/useRecommendations";
+import { useWines } from "@/context/WinesContext";
 import heroImg from "@/imports/ChatGPT_Image_12_de_set._de_2026__15_41_42.png";
-import videoTerroir from "@/imports/WhatsApp_Video_2026-09-12_at_16.34.47.mp4";
+import videoTerroir from "@/imports/primeira_coluna.mp4";
 import videoPaixao from "@/imports/WhatsApp_Video_2026-09-12_at_16.34.53.mp4";
-import videoArtesanal from "@/imports/WhatsApp_Video_2026-09-12_at_16.34.43.mp4";
+import videoArtesanal from "@/imports/segunda_coluna.mp4";
+import garrafaTinto from "@/imports/garrafa-tinto.webp";
+import garrafaBranco from "@/imports/garrafa-branco.webp";
+import garrafaRose from "@/imports/garrafa-rose.webp";
+import garrafaEspumante from "@/imports/garrafa-espumante.webp";
+import garrafaPrimitivo from "@/imports/garrafa-primitivo.webp";
 
 const GOLD = "#AE8648";
 
@@ -38,9 +43,10 @@ const heroSlides = [
 ];
 
 const categories = [
-  { name: "Tinto", slug: "Tinto", img: "https://images.unsplash.com/photo-1759971408697-a0ae9a906e4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300&q=80" },
-  { name: "Branco", slug: "Branco", img: "https://images.unsplash.com/photo-1780963135006-22a5bc0ec637?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300&q=80" },
-  { name: "Espumante", slug: "Espumante", img: "https://images.unsplash.com/photo-1761095596653-8dc3802a1323?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300&q=80" },
+  { name: "Tinto", slug: "Tinto", img: garrafaTinto },
+  { name: "Branco", slug: "Branco", img: garrafaBranco },
+  { name: "Rosé", slug: "Rosé", img: garrafaRose },
+  { name: "Espumante", slug: "Espumante", img: garrafaEspumante },
 ];
 
 
@@ -50,9 +56,11 @@ export default function App() {
   const [quizOpen, setQuizOpen] = useState(false);
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const { wines } = useWines();
   const navigate = useNavigate();
-  const personalizedWines = user?.quizAnswers ? scoreWines(user.quizAnswers).slice(0, 3) : [];
-  const personalizedContent = user?.quizAnswers ? getPersonalizedContent(user.quizAnswers).slice(0, 2) : [];
+  const { data: recomendacao } = useRecommendations();
+  const personalizedWines = recomendacao?.wines.slice(0, 3) ?? [];
+  const personalizedContent = recomendacao?.content.slice(0, 2) ?? [];
 
   const prevSlide = () => setSlide((s) => (s - 1 + heroSlides.length) % heroSlides.length);
   const nextSlide = () => setSlide((s) => (s + 1) % heroSlides.length);
@@ -158,6 +166,7 @@ export default function App() {
           {/* Category grid — overflow visible so bottles can pop out */}
           <div style={{
             display: "flex",
+            flexWrap: "wrap",
             justifyContent: "center",
             gap: 0,
             overflow: "visible",
@@ -282,9 +291,8 @@ export default function App() {
       <section className="rec-section">
         {/* Left — bottle visual */}
         <div className="rec-left">
-          <div className="rec-watermark font-script">Brisa</div>
           <img
-            src="https://images.unsplash.com/photo-1775144313163-9361d25189c1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600&q=80"
+            src={garrafaPrimitivo}
             alt="Primitivo di Manduria"
             className="rec-bottle"
           />

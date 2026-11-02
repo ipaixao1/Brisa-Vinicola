@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { api } from "@/services/api";
 
 const WA_NUMBER = "5511999999999";
 const EMAIL = "contato@brisavinicola.com.br";
@@ -28,10 +29,15 @@ export default function FaleConoscoPage() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSent(true);
-    setForm({ name: "", email: "", subject: "", message: "" });
+    try {
+      await api("/contact", { method: "POST", body: form, auth: false });
+      setSent(true);
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Não foi possível enviar a mensagem.");
+    }
   }
 
   return (

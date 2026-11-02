@@ -32,7 +32,7 @@ export default function Quiz({ onClose }: Props) {
     return { ocasiao: list[0], sabor: list[1], comida: list[2], experiencia: list[3], preco: list[4] };
   }
 
-  function handleNext() {
+  async function handleNext() {
     if (selected === null) return;
     const next = [...answers, selected];
     setAnswers(next);
@@ -44,7 +44,14 @@ export default function Quiz({ onClose }: Props) {
       // Quiz completed
       const quizAnswers = buildAnswers(next);
       if (user) {
-        saveQuizAnswers(quizAnswers);
+        try {
+          await saveQuizAnswers(quizAnswers);
+        } catch {
+          window.alert("Não foi possível salvar suas respostas. Tente novamente.");
+          setAnswers(answers);
+          setSelected(selected);
+          return;
+        }
         onClose();
         navigate("/quiz-resultado");
       } else {

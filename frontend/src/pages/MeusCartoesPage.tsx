@@ -87,7 +87,7 @@ export default function MeusCartoesPage() {
 
       {confirmDeleteId && (
         <ConfirmDelete
-          onConfirm={() => { deleteCard(confirmDeleteId); setConfirmDeleteId(null); }}
+          onConfirm={() => { deleteCard(confirmDeleteId).catch(() => {}); setConfirmDeleteId(null); }}
           onCancel={() => setConfirmDeleteId(null)}
         />
       )}

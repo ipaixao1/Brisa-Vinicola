@@ -1,7 +1,31 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Address } from "@/context/AddressContext";
 
 const GOLD = "#AE8648";
+
+type CepStatus = "idle" | "loading" | "found" | "notfound" | "error";
+
+// Coloca o hífen enquanto digita: 01001000 -> 01001-000
+function formatCep(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+}
+
+interface ViaCepResponse {
+  logradouro?: string;
+  bairro?: string;
+  localidade?: string;
+  uf?: string;
+  erro?: boolean | string;
+}
+
+// Consulta gratuita de CEP (ViaCEP). Devolve null quando o CEP não existe.
+async function consultarCep(digits: string): Promise<ViaCepResponse | null> {
+  const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+  if (!res.ok) throw new Error("Falha ao consultar o CEP");
+  const data = (await res.json()) as ViaCepResponse;
+  return data.erro ? null : data;
+}
 
 export type AddressFormData = Omit<Address, "id" | "isPrimary"> & { isPrimary: boolean };
 
@@ -20,6 +44,49 @@ interface Props {
 export default function AddressForm({ initial, onSave, onCancel, title = "Novo endereço" }: Props) {
   const [form, setForm] = useState<AddressFormData>({ ...emptyForm, ...initial });
   const [errors, setErrors] = useState<Partial<Record<keyof AddressFormData, string>>>({});
+
+  const [cepStatus, setCepStatus] = useState<CepStatus>("idle");
+  const lastCep = useRef("");
+  const numberRef = useRef<HTMLInputElement>(null);
+
+  // Busca o endereço pelo CEP e preenche rua, bairro, cidade e UF
+  async function lookupCep(digits: string) {
+    lastCep.current = digits;
+    setCepStatus("loading");
+    try {
+      const data = await consultarCep(digits);
+      if (lastCep.current !== digits) return; // o cliente já digitou outro CEP
+      if (!data) {
+        setCepStatus("notfound");
+        return;
+      }
+      setForm(f => ({
+        ...f,
+        street: data.logradouro || f.street,
+        neighborhood: data.bairro || f.neighborhood,
+        city: data.localidade || f.city,
+        state: (data.uf || f.state).toUpperCase(),
+      }));
+      setErrors(ev => ({ ...ev, street: undefined, neighborhood: undefined, city: undefined, state: undefined }));
+      setCepStatus("found");
+      numberRef.current?.focus();
+    } catch {
+      if (lastCep.current === digits) setCepStatus("error");
+    }
+  }
+
+  function changeCep(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = formatCep(e.target.value);
+    const digits = value.replace(/\D/g, "");
+    setForm(f => ({ ...f, cep: value }));
+    setErrors(ev => ({ ...ev, cep: undefined }));
+    if (digits.length === 8) {
+      lookupCep(digits);
+    } else {
+      lastCep.current = "";
+      setCepStatus("idle");
+    }
+  }
 
   function change(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value, type } = e.target;
@@ -77,8 +144,20 @@ export default function AddressForm({ initial, onSave, onCancel, title = "Novo e
           {/* CEP */}
           <div>
             <label style={labelStyle}>CEP *</label>
-            <input style={{ ...inputStyle, borderColor: errors.cep ? "#e05" : undefined }} name="cep" value={form.cep} onChange={change} placeholder="00000-000" maxLength={9} />
+            <input style={{ ...inputStyle, borderColor: errors.cep ? "#e05" : undefined }} name="cep" value={form.cep} onChange={changeCep} placeholder="00000-000" maxLength={9} inputMode="numeric" autoComplete="postal-code" />
             {errors.cep && <span style={errStyle}>{errors.cep}</span>}
+            {!errors.cep && cepStatus === "loading" && (
+              <span style={{ fontFamily: "Poppins", fontSize: 11, color: GOLD, marginTop: 4, display: "block" }}>Buscando endereço...</span>
+            )}
+            {!errors.cep && cepStatus === "found" && (
+              <span style={{ fontFamily: "Poppins", fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 4, display: "block" }}>Endereço encontrado. Confira e informe o número.</span>
+            )}
+            {!errors.cep && cepStatus === "notfound" && (
+              <span style={errStyle}>CEP não encontrado. Preencha o endereço manualmente.</span>
+            )}
+            {!errors.cep && cepStatus === "error" && (
+              <span style={errStyle}>Não foi possível consultar o CEP agora. Preencha manualmente.</span>
+            )}
           </div>
 
           {/* State */}
@@ -98,7 +177,7 @@ export default function AddressForm({ initial, onSave, onCancel, title = "Novo e
           {/* Number */}
           <div>
             <label style={labelStyle}>Número *</label>
-            <input style={{ ...inputStyle, borderColor: errors.number ? "#e05" : undefined }} name="number" value={form.number} onChange={change} />
+            <input style={{ ...inputStyle, borderColor: errors.number ? "#e05" : undefined }} name="number" ref={numberRef} value={form.number} onChange={change} />
             {errors.number && <span style={errStyle}>{errors.number}</span>}
           </div>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -105,30 +105,26 @@ type ConfirmState = "pending" | "confirmed" | "not-received";
 export default function AcompanharPedidoPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { getOrder, advanceStatus } = useOrders();
+  const { getOrder, advanceStatus, loading } = useOrders();
   const navigate = useNavigate();
 
-  const [order, setOrder] = useState(() => id ? getOrder(id) : undefined);
+  const order = id ? getOrder(id) : undefined;
   const [confirmState, setConfirmState] = useState<ConfirmState>("pending");
 
-  // Refresh order from storage
-  function refresh() {
-    if (id) setOrder(getOrder(id));
-  }
+  // Guarda o pedido mais recente para o intervalo abaixo enxergar
+  const orderRef = useRef(order);
+  orderRef.current = order;
 
-  // Auto-advance every 5 seconds until "Entregue"
+  // Simulação de entrega: a cada 5 segundos a API avança o status até "Entregue"
   useEffect(() => {
-    refresh();
     const interval = setInterval(() => {
-      const current = id ? getOrder(id) : undefined;
-      if (!current) return;
-      const isDelivered = current.statusIndex >= DELIVERY_STATUSES.length - 1;
-      if (!isDelivered) {
-        advanceStatus(id!);
-        setOrder(getOrder(id!));
-      } else {
+      const current = orderRef.current;
+      if (!current || !id) return;
+      if (current.statusIndex >= DELIVERY_STATUSES.length - 1) {
         clearInterval(interval);
+        return;
       }
+      advanceStatus(id).catch(() => {});
     }, 5000);
     return () => clearInterval(interval);
   }, [id]);
@@ -137,7 +133,7 @@ export default function AcompanharPedidoPage() {
   if (!order) return (
     <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header />
-      <div className="cart-empty"><h3 className="cart-empty-title font-serif">Pedido não encontrado</h3></div>
+      <div className="cart-empty"><h3 className="cart-empty-title font-serif">{loading ? "Carregando..." : "Pedido não encontrado"}</h3></div>
       <Footer />
     </div>
   );

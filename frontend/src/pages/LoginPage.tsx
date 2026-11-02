@@ -14,14 +14,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    const ok = login(email, password);
-    if (ok) {
-      navigate(from, { replace: true });
-    } else {
-      setError("E-mail ou senha incorretos. Tente novamente.");
+    try {
+      const ok = await login(email, password);
+      if (ok) {
+        navigate(from, { replace: true });
+      } else {
+        setError("E-mail ou senha incorretos. Tente novamente.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível entrar. Tente novamente.");
     }
   }
 

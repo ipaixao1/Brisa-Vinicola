@@ -68,3 +68,14 @@ Quem pode cadastrar vinhos e ver as mensagens do Fale Conosco é o usuário com 
 ```sql
 UPDATE users SET is_admin = 1 WHERE email = 'seu-email@exemplo.com';
 ```
+
+## Testes
+
+Testes automáticos da API (usam um banco SQLite temporário, o MySQL não é tocado):
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+O roteiro de testes manuais do site completo está em `docs/roteiro-de-testes.md`.

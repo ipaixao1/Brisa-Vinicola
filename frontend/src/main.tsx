@@ -6,7 +6,9 @@ import { CartProvider } from "./context/CartContext";
 import { OrderProvider } from "./context/OrderContext";
 import { AddressProvider } from "./context/AddressContext";
 import { CardProvider } from "./context/CardContext";
+import { WinesProvider } from "./context/WinesContext";
 import App from "./App";
+import ScrollReveal from "./components/ScrollReveal";
 import VinhosPage from "./pages/VinhosPage";
 import WineDetailPage from "./pages/WineDetailPage";
 import LoginPage from "./pages/LoginPage";
@@ -28,7 +30,9 @@ import "./index.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
+      <ScrollReveal />
       <AuthProvider>
+        <WinesProvider>
         <CartProvider>
           <OrderProvider>
             <AddressProvider>
@@ -56,6 +60,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             </AddressProvider>
           </OrderProvider>
         </CartProvider>
+        </WinesProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
