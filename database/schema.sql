@@ -20,6 +20,7 @@ CREATE TABLE users (
 	email VARCHAR(255) NOT NULL, 
 	password_hash VARCHAR(255) NOT NULL, 
 	is_admin BOOL NOT NULL DEFAULT '0', 
+	quiz_answers JSON, 
 	created_at DATETIME NOT NULL, 
 	PRIMARY KEY (id)
 );

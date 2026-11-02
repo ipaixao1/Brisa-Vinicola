@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
+from .schemas_quiz import QuizAnswers
+
 
 class WineOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -62,6 +64,7 @@ class UserOut(BaseModel):
     name: str
     email: str
     isAdmin: bool = Field(validation_alias="is_admin")
+    quizAnswers: QuizAnswers | None = Field(default=None, validation_alias="quiz_answers")
 
 
 class TokenOut(BaseModel):

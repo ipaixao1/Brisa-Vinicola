@@ -53,6 +53,7 @@ O arquivo `brisa_vinicola.mwb` é o modelo editável (MySQL Workbench).
 | password_hash | VARCHAR(255) | não | | Senha criptografada (bcrypt) |
 | created_at | DATETIME | não | | Data do cadastro |
 | is_admin | TINYINT(1) | não | | Administrador (0 = cliente, 1 = admin) |
+| quiz_answers | JSON | sim | | Respostas do quiz de perfil (ocasião, sabor, comida, experiência, preço) |
 
 ### orders (pedidos)
 | Coluna | Tipo | Nulo | Chave | Descrição |
