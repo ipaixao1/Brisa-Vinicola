@@ -3730,3 +3730,33 @@ img, video, svg, canvas { max-width: 100%; }
   .cpv-product .cpv-add { grid-column: 1 / -1; }
   .cpv-actions > * { flex: 1 1 100%; }
 }
+
+/* ── BV-VOLTAR: seta de voltar para a Home ── */
+.back-home {
+  position: absolute;
+  top: 84px;
+  left: 24px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px 0 11px;
+  border: 1px solid rgba(174,134,72,0.45);
+  border-radius: 999px;
+  background: rgba(18,15,12,0.78);
+  backdrop-filter: blur(6px);
+  color: #AE8648;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.back-home:hover { background: #AE8648; color: #0e0d0c; transform: translateX(-2px); }
+.back-home:focus-visible { outline: 2px solid #AE8648; outline-offset: 3px; }
+@media (max-width: 600px) {
+  .back-home { top: 70px; left: 12px; width: 36px; height: 36px; padding: 0; justify-content: center; }
+  body.has-back #root { padding-top: 44px; }
+  .back-home-label { display: none; }
+}

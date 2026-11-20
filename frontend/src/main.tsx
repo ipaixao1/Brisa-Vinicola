@@ -9,6 +9,7 @@ import { CardProvider } from "./context/CardContext";
 import { WinesProvider } from "./context/WinesContext";
 import App from "./App";
 import ScrollReveal from "./components/ScrollReveal";
+import BackToHome from "./components/BackToHome";
 import VinhosPage from "./pages/VinhosPage";
 import WineDetailPage from "./pages/WineDetailPage";
 import LoginPage from "./pages/LoginPage";
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <ScrollReveal />
+      <BackToHome />
       <AuthProvider>
         <WinesProvider>
         <CartProvider>
