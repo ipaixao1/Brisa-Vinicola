@@ -27,6 +27,7 @@ Os testes automáticos da API ficam em `backend/tests` (`python -m pytest` dentr
 | 2.4 | Ordenação | Ordenar por menor e maior preço | Preços em ordem | ☐ |
 | 2.5 | Detalhe | Clicar em um vinho | Página com descrição, características e vinhos parecidos | ☐ |
 | 2.6 | Vinho inexistente | Abrir `/vinhos/9999` | "Vinho não encontrado" | ☐ |
+| 2.7 | Seta de voltar | Em qualquer tela interna, clicar em "← Home" (canto superior esquerdo) | Vai para a Home; a seta não aparece na própria Home | ☐ |
 
 ## 3. Quiz e conteúdo personalizado
 
@@ -36,8 +37,11 @@ Os testes automáticos da API ficam em `backend/tests` (`python -m pytest` dentr
 | 3.2 | Respostas preservadas | Após 3.1, criar conta | Vai para o resultado com as respostas já feitas | ☐ |
 | 3.3 | Resultado | Fazer o quiz logada | Lista de vinhos com % de compatibilidade, do maior para o menor | ☐ |
 | 3.4 | Perfil salvo | Sair, entrar de novo e abrir o resultado | O resultado continua lá (salvo no banco) | ☐ |
-| 3.5 | Conteúdo | Menu Conteúdo Personalizado | Artigos e vinhos de acordo com o perfil; "Ler mais" abre o artigo | ☐ |
+| 3.5 | Conteúdo | Menu Conteúdo Personalizado | Card do perfil, vídeo em destaque e conteúdos por categoria (perfil, nível, comida, ocasião) | ☐ |
 | 3.6 | Sem quiz | Entrar com uma conta nova que não fez o quiz | Convite para fazer o quiz | ☐ |
+| 3.7 | Vídeos | Clicar em "Assistir no YouTube" em um conteúdo (e no card da Home) | O vídeo abre em outra aba | ☐ |
+| 3.8 | Perfis diferentes | Refazer o quiz com respostas bem diferentes | O conteúdo muda de acordo com o novo perfil | ☐ |
+| 3.9 | Carrinho no conteúdo | Em um conteúdo, clicar em "Adicionar" em um vinho relacionado | Botão vira "Adicionado ✓" e o carrinho do topo aumenta | ☐ |
 
 ## 4. Carrinho, endereço e compra
 
@@ -78,7 +82,7 @@ Os testes automáticos da API ficam em `backend/tests` (`python -m pytest` dentr
 
 ## 8. Após o deploy
 
-Repita os grupos 1 a 6 no endereço público do site (Vercel) com a API no Railway, e confirme também:
+Repita os grupos 1 a 6 no endereço público do site (Vercel) com a API no Render (banco no TiDB Cloud), e confirme também:
 
 | # | Cenário | Resultado esperado | OK |
 |---|---|---|---|
@@ -86,3 +90,4 @@ Repita os grupos 1 a 6 no endereço público do site (Vercel) com a API no Railw
 | 8.2 | Cadastro, login e compra no site publicado | Tudo funciona como localmente | ☐ |
 | 8.3 | Recarregar uma página interna (ex.: `/vinhos`) | Abre normalmente, sem erro 404 | ☐ |
 | 8.4 | Console do navegador (F12) | Sem erros de CORS | ☐ |
+| 8.5 | Primeiro acesso depois de um tempo parado | A API do plano grátis acorda em até ~1 minuto e depois responde normalmente | ☐ |
