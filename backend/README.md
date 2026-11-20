@@ -24,7 +24,13 @@ Crie um arquivo `.env` na pasta `backend` (não vai pro Git):
 SECRET_KEY=uma-chave-secreta-longa
 # Opcional. Por padrão usa SQLite local (brisa.db). Para MySQL:
 # DATABASE_URL=mysql+pymysql://usuario:senha@localhost:3306/brisa_vinicola
+# Opcional. Endereços do site liberados (separados por vírgula). Padrão: localhost 5173/5174
+# CORS_ORIGINS=http://localhost:5173,https://brisa-vinicola.vercel.app
+# Opcional. Conexão segura com o banco (TiDB Cloud e outros bancos na nuvem exigem)
+# DB_SSL=true
 ```
+
+Em produção (Render) essas mesmas variáveis são definidas no painel do serviço. Veja `docs/deploy.md`.
 
 ## Rotas
 
@@ -37,6 +43,10 @@ SECRET_KEY=uma-chave-secreta-longa
 | `POST /auth/register` | Cadastro (devolve token) |
 | `POST /auth/login` | Login (devolve token) |
 | `GET /auth/me` | Dados do usuário logado |
+| `POST /quiz/recommend` | Recebe as respostas do quiz e devolve o perfil, os vinhos ranqueados e o conteúdo personalizado |
+| `PUT /users/me/quiz` | Salva as respostas do quiz no usuário logado |
+| `GET /users/me/recommendations` | Perfil, vinhos e conteúdo personalizado (vídeos do YouTube) do usuário logado |
+| `GET /saude` | Verifica se a API e o banco estão no ar |
 | `POST /orders` | Cria pedido (logado) |
 | `GET /orders` | Pedidos do usuário logado |
 | `GET /orders/{id}` | Detalhe de um pedido |
