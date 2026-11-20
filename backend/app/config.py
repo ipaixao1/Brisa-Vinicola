@@ -5,6 +5,8 @@ class Settings(BaseSettings):
     # Por enquanto SQLite. Depois, trocar no .env por MySQL:
     # mysql+pymysql://usuario:senha@localhost:3306/brisa_vinicola
     database_url: str = "sqlite:///./brisa.db"
+    # Conexão segura com o banco (TiDB Cloud exige). Em produção: DB_SSL=true
+    db_ssl: bool = False
     secret_key: str = "troque-esta-chave-depois"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
